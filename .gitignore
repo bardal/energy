@@ -1,3 +1,4 @@
 .vscode
 *.appid
 *.key
+*-checkpoint.ipynb
