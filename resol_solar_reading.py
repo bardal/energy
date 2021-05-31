@@ -57,9 +57,11 @@ def recv_header_pt1(logger, sock):
     # 4	Source address (high-byte)
     # 5	Protocol version
 
+    logger('Scanning for SYNC Byte 0xAA')
     while (reply := receive(sock, 1)) != b'\xaa':
-        logger(reply)
+        logger(f"Not SYNC - skipping {reply}")
 
+    logger('Got SYNC Byte. Reading first part of header')
     reply = receive(sock, 5)
     (destination, source, pvraw) = struct.unpack('<HHc', reply[:5])
     pv = protocolversion(pvraw)
