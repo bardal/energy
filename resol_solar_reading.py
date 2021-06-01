@@ -1,3 +1,31 @@
+"""Print solar readings from Resol KM2/DeltaSol CS4
+
+Standalone script. Only uses standard packages.
+
+Example usage:
+>python.exe resol_solar_reading.py -v [IP.ADDRESS] [PASSWORD]
+LOG:  Connecting to [IP.ADDRESS]:7053
+LOG:  +HELLO
+LOG:  +OK
+LOG:  +OK
+LOG:  Logged in
+LOG:  Scanning for SYNC Byte 0xAA
+LOG:  Got SYNC Byte. Reading first part of header
+LOG:  Destination 0x0010
+LOG:  Source 0x1122
+LOG:  Protocol version 1.0
+LOG:  command=0x0100 frames=10
+LOG:  ['0xf9', '0x01', '0x27', '0x01', '0xb8', '0x22', '0xb8', ...]
+
+Collector Temperature : 50.5 °C
+Water     Temperature : 29.5 °C
+Pump                  : 100%
+Time                  : 8:54
+Status                : 0
+
+"""
+
+import argparse
 import sys
 import socket
 import struct
@@ -5,6 +33,7 @@ import struct
 BUFSIZE = 1024
 DFA_ADDRESS = 0x0010
 DELTASOL_CS4_ADDRESS = 0x1122
+PORT = 7053
 
 def receive(sock, numbytes):
     chunks = []
@@ -190,13 +219,15 @@ def main(ip, port, password, logger):
 
 
 if __name__ == "__main__":
-    ip = sys.argv[1]
-    password = sys.argv[2]
-    port =  7053
+
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('ip_address',type=str,help="IP Address of the KM2")
+    parser.add_argument('password',type=str,help="password of the KM2")
+    parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
+    args = parser.parse_args()    
     
-    logging_on = True
-    logger = lambda *args : print("LOG: ", *args) if logging_on else lambda *args : None
+    logger = lambda *largs : print("LOG: ", *largs) if args.verbose else lambda *largs : None
     
-    main(ip, 7053, password, logger)
+    main(args.ip_address, PORT, args.password, logger)
 
 
